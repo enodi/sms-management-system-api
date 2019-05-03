@@ -46,19 +46,12 @@ export const getSpecificContact = (req, res) => {
           message: `Contact with id: ${id} does not exist`
         });
       }
-    
-    db.Contact.findAll({
-      where: { id },
-      include: [
-        { model: db.Message, as: "sentMessages" },
-        { model: db.Message, as: "receivedMessages" }
-      ]
-    }).then((messageRetrieved) => {
       return res.status(200).json({
-        data: messageRetrieved
+        contact: "Contact retrieved successfully",
+        data: contact
       });
-    }).catch(error => res.status(500).json(error));
-  });
+    })
+    .catch(error => res.status(500).json(error));
 }
 
 export const updateContact = (req, res) => {

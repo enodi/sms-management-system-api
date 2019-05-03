@@ -21,8 +21,6 @@ export const createMessage = (req, res) => {
             .then(messageCreated => {
               res.status(201).json({
                 message: "Message sent successfully",
-                senderId,
-                recipientId,
                 data: messageCreated
               });
             })
@@ -50,19 +48,26 @@ export const getMessages= (req, res) => {
 
 export const getSpecificMessage = (req, res) => {
   const id = parseInt(req.params.messageId);
-  db.Message.findByPk(id)
-    .then(message => {
-      if (!message) {
+  db.Contact.findByPk(id)
+    .then(contact => {
+      if (!contact) {
         return res.status(404).json({
-          message: `Message with id: ${id} does not exist`
+          message: `Contact with id: ${id} does not exist`
         });
       }
-      return res.status(200).json({
-        message: "Meesage retrieved successfully",
-        data: message
-      });
-    })
-    .catch(error => res.status(500).json(error));
+
+      db.Contact.findAll({
+        where: { id },
+        include: [
+          { model: db.Message, as: "sentMessages" },
+          { model: db.Message, as: "receivedMessages" }
+        ]
+      }).then((messageRetrieved) => {
+        return res.status(200).json({
+          data: messageRetrieved
+        });
+      }).catch(error => res.status(500).json(error));
+    });
 }
 
 export const deleteMessage = (req, res) => {
